@@ -1,4 +1,5 @@
 import os
+import app
 SECRET_KEY = os.urandom(32)
 # Grabs the folder where the script runs.
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -9,5 +10,8 @@ DEBUG = True
 # Connect to the database
 
 
-# TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = '<Put your local database url>'
+
+# TODO IMPLEMENT DATABASE URL  ==>  DONE 
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:aicha@127.0.0.1:5432/project1'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
