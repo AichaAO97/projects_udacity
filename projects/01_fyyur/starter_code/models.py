@@ -19,7 +19,10 @@ class Show(db.Model):
     artist_id = db.Column( db.Integer, db.ForeignKey('artists.id'), primary_key=True)
     datetime = db.Column( db.DateTime)  
     
-    artist = db.relationship("Artist")
+    artist = db.relationship("Artist", back_populates="venues")
+    venue = db.relationship("Venue", back_populates="artists")
+    
+    
     def __repr__(self) :
         return f'{self.venue_id},{self.artist_id},{self.datetime}' 
     
@@ -38,6 +41,7 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+ 
     
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
     # Done
@@ -46,7 +50,7 @@ class Venue(db.Model):
     detail_seeking = db.Column(db.String(500))
     genres = db.Column(db.String(120))
 
-    artists = db.relationship("Show")
+    artists = db.relationship("Show" , back_populates="venue")  
 
     
 
@@ -67,3 +71,5 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     seeking = db.Column(db.Boolean, nullable = False, default = False)
     detail_seeking = db.Column(db.String(500))
+
+    venues = db.relationship("Show" , back_populates="artist")  

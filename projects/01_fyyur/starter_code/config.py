@@ -15,3 +15,6 @@ DEBUG = True
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:aicha@127.0.0.1:5432/project1'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+WTF_CSRF_SECRET_KEY= 'your_csrf_secret_key'
+SECRET_KEY= 'your_secret_key'
+
