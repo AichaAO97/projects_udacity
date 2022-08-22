@@ -14,9 +14,10 @@ db = SQLAlchemy(app)
 
 class Show(db.Model):
     __tablename__ = 'shows'
-    
-    venue_id = db.Column( db.Integer, db.ForeignKey('venues.id'), primary_key=True)
-    artist_id = db.Column( db.Integer, db.ForeignKey('artists.id'), primary_key=True)
+    # ids changed
+    id = db.Column( db.Integer, primary_key=True)
+    venue_id = db.Column( db.Integer, db.ForeignKey('venues.id'))
+    artist_id = db.Column( db.Integer, db.ForeignKey('artists.id'))
     datetime = db.Column( db.DateTime)  
     
     artist = db.relationship("Artist", back_populates="venues")
@@ -48,8 +49,8 @@ class Venue(db.Model):
     website_link = db.Column(db.String(120))
     seeking = db.Column(db.Boolean, nullable = False, default = False)
     detail_seeking = db.Column(db.String(500))
-    genres = db.Column(db.String(120))
-
+    ##genres changed
+    genres = db.Column(db.ARRAY(db.String), nullable=False)
     artists = db.relationship("Show" , back_populates="venue")  
 
     
@@ -62,7 +63,8 @@ class Artist(db.Model):
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    ##genres changed
+    genres = db.Column(db.ARRAY(db.String), nullable=False)
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
 

@@ -7,7 +7,15 @@ import json
 from select import select
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import (
+    Flask, 
+    render_template, 
+    request, 
+    Response, 
+    flash, 
+    redirect, 
+    url_for
+)
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
@@ -32,8 +40,7 @@ app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
 
-app.config['WTF_CSRF_SECRET_KEY'] = 'your_csrf_secret_key'
-app.config['SECRET_KEY'] = 'your_secret_key'
+
 
 csrf = CSRFProtect(app)
 csrf.init_app(app)
@@ -222,11 +229,8 @@ def show_venue(venue_id):
   data["id"] = venue_id
   data["name"] = venue.name
   
-  ### To Get data["genres"]  ↓↓↓↓
-  ## venue.genres == '{Alternative,Blues,Classical,Country}' and is of type str
-  ## venue.genres[1:-1] == 'Alternative,Blues,Classical,Country' and is of type str
-  ## venue.genres[1:-1].split(',') == ['Alternative', 'Blues', 'Classical', 'Country'] and is of type list
-  data["genres"] = venue.genres[1:-1].split(',')
+
+  data["genres"] = venue.genres
   
   data["address"] = venue.address
   data["city"] = venue.city
@@ -234,7 +238,7 @@ def show_venue(venue_id):
   data["phone"] = venue.phone
   data["website"] = venue.website_link
   data["facebook_link"] = venue.facebook_link  
-  data["seeking_talent"] = (venue.seeking == 'true')
+  data["seeking_talent"] = venue.seeking 
   data["seeking_description"] = venue.detail_seeking
   data["image_link"] = venue.image_link  
  
@@ -336,7 +340,7 @@ def show_venue(venue_id):
 ###################################################################################################################
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
-  form = VenueForm()
+  form = VenueForm(request.form)
   return render_template('forms/new_venue.html', form=form)
 ###################################################################################################################
 
@@ -350,31 +354,25 @@ def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
   
-  form = VenueForm()
+  form = VenueForm(request.form)
  
   #Done
   error = False
   if form.validate_on_submit():
     try:
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']
-        address = request.form['address']      
-        phone = request.form['phone']      
-        image_link = request.form['image_link'] 
-        facebook_link = request.form['facebook_link']
-  
-        website_link = request.form['website_link']   
-
-        try:
-          if request.form['seeking_talent'] == 'y':
-            seeking = True
-        except:
-          seeking = False
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data
+        address = form.address.data  
+        phone = form.phone.data      
+        image_link = form.image_link.data 
+        facebook_link = form.facebook_link.data
+        website_link = form.website_link.data
+        seeking = form.seeking_talent.data
+        detail_seeking = form.seeking_description.data 
+        genres = form.genres.data
         
-        detail_seeking = request.form['seeking_description']  
-        genres = request.form.to_dict(flat=False)['genres']
-      
+        
         venue = Venue(name = name,
                       city = city,
                       state = state,
@@ -579,21 +577,15 @@ def show_artist(artist_id):
   data["id"] = artist_id
   data["name"] = artist.name
 
-  ### To Get data["genres"]  ↓↓↓↓
-  ## artist.genres == '{Alternative,Blues,Classical,Country}' and is of type str
-  ## artist.genres[1:-1] == 'Alternative,Blues,Classical,Country' and is of type str
-  ## artist.genres[1:-1].split(',') == ['Alternative', 'Blues', 'Classical', 'Country'] and is of type list
-  data["genres"] = artist.genres[1:-1].split(',')
+
+  data["genres"] = artist.genres
   
   data["city"] = artist.city
   data["state"] = artist.state
   data["phone"] = artist.phone
   data["website"] = artist.website_link
   data["facebook_link"] = artist.facebook_link  
-  data["seeking_venue"] = (artist.seeking == 'true')
-  
-  print('######################## Seeking', data["seeking_venue"] , type(data["seeking_venue"]) )
-  
+  data["seeking_venue"] = artist.seeking
   data["seeking_description"] = artist.detail_seeking
   data["image_link"] = artist.image_link
   
@@ -698,7 +690,7 @@ def show_artist(artist_id):
 ###################################################################################################################
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
-  form = ArtistForm()
+  form = ArtistForm(request.form)
 
   # TODO: populate form with fields from artist with ID <artist_id>
 
@@ -708,7 +700,7 @@ def edit_artist(artist_id):
   artist = {}
   artist["id"] = artist_id
   artist["name"] = artist_data.name
-  artist["genres"] = artist_data.genres[1:-1].split(',')
+  artist["genres"] = artist_data.genres
   artist["city"] = artist_data.city
   artist["state"] = artist_data.state
   artist["phone"] = artist_data.phone
@@ -735,29 +727,22 @@ def edit_artist_submission(artist_id):
   # artist record with ID <artist_id> using the new attributes
 
   ## Done
-  form = ArtistForm()
+  form = ArtistForm(request.form)
 
   error = False
   if form.validate_on_submit():
     try:
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']     
-        phone = request.form['phone']      
-        image_link = request.form['image_link'] 
-        facebook_link = request.form['facebook_link']
-        website_link = request.form['website_link']
-        try:
-          if request.form['seeking_venue'] == 'y':
-            seeking = True
-        except:
-          seeking = False
-          
-        detail_seeking = request.form['seeking_description']  
-
-        ## I have to convert the form into a dictionary in order to extract all genre values
-        genres = request.form.to_dict(flat=False)['genres']
-    
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data    
+        phone = form.phone.data    
+        image_link = form.image_link.data
+        facebook_link = form.facebook_link.data
+        website_link = form.website_link.data  
+        seeking = form.seeking_venue.data   
+        detail_seeking = form.seeking_description.data
+        genres = form.genres.data
+        
         artist = Artist.query.get(artist_id)
         artist.name = name
         artist.city = city
@@ -814,13 +799,13 @@ def edit_artist_submission(artist_id):
 def edit_venue(venue_id):
   
   ## Done
-  form = VenueForm()
+  form = VenueForm(request.form)
 
   venue_data = Venue.query.get(venue_id)
   venue = {}
   venue["id"] = venue_id
   venue["name"] = venue_data.name
-  venue["genres"] = venue_data.genres[1:-1].split(',')
+  venue["genres"] = venue_data.genres
   venue["address"] = venue_data.address
   venue["city"] = venue_data.city
   venue["state"] = venue_data.state
@@ -849,30 +834,22 @@ def edit_venue_submission(venue_id):
   # venue record with ID <venue_id> using the new attributes
 
   ## Done
-  form = VenueForm()  
+  form = VenueForm(request.form)  
   error = False
   if form.validate_on_submit():
     try:
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']  
-        address = request.form['address']         
-        phone = request.form['phone']      
-        image_link = request.form['image_link'] 
-        facebook_link = request.form['facebook_link']
-        website_link = request.form['website_link']
-
-        try:
-          if request.form['seeking_talent'] == 'y':
-            seeking = True
-        except:
-          seeking = False
-          
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data
+        address = form.address.data       
+        phone = form.phone.data      
+        image_link = form.image_link.data
+        facebook_link = form.facebook_link.data
+        website_link = form.website_link.data
+        seeking = form.seeking_talent.data
         detail_seeking = request.form['seeking_description']  
+        genres = form.genres.data
 
-        ## I have to convert the form into a dictionary in order to extract all genre values
-        genres = request.form.to_dict(flat=False)['genres']
-    
         venue = Venue.query.get(venue_id)
         venue.name = name
         venue.city = city
@@ -929,7 +906,7 @@ def edit_venue_submission(venue_id):
 ###################################################################################################################
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
-  form = ArtistForm()
+  form = ArtistForm(request.form)
   return render_template('forms/new_artist.html', form=form)
 ###################################################################################################################
 
@@ -943,28 +920,23 @@ def create_artist_submission():
   # TODO: modify data to be the data object returned from db insertion
   
   ##Done
-  form = ArtistForm()
+  form = ArtistForm(request.form)
   error = False
 
   if form.validate_on_submit():
     try:
-        name = request.form['name']
-        city = request.form['city']
-        state = request.form['state']     
-        phone = request.form['phone']      
-        image_link = request.form['image_link'] 
-        facebook_link = request.form['facebook_link']
-        website_link = request.form['website_link']
-        try:
-          if request.form['seeking_venue'] == 'y':
-            seeking = True
-        except:
-          seeking = False
-          
-        detail_seeking = request.form['seeking_description']  
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data    
+        phone = form.phone.data     
+        image_link = form.image_link.data
+        facebook_link = form.facebook_link.data
+        website_link = form.website_link.data
+        seeking = form.seeking_venue.data
+        detail_seeking = form.seeking_description.data
 
         ## I have to convert the form into a dictionary in order to extract all genre values
-        genres = request.form.to_dict(flat=False)['genres']
+        genres = form.genres.data
     
         artist = Artist(name = name,
                       city = city,
@@ -1082,7 +1054,7 @@ def shows():
 @app.route('/shows/create')
 def create_shows():
   # renders form. do not touch.
-  form = ShowForm()
+  form = ShowForm(request.form)
   return render_template('forms/new_show.html', form=form)
 ###################################################################################################################
 
@@ -1100,14 +1072,14 @@ def create_show_submission():
   
   ##Done
 
-  form = ShowForm()
+  form = ShowForm(request.form)
   
   error = False
   if form.validate_on_submit():
     try:
-        artist_id = request.form['artist_id']
-        venue_id = request.form['venue_id']
-        start_time = request.form['start_time']         
+        artist_id = form.artist_id.data
+        venue_id = form.venue_id.data
+        start_time = form.start_time.data        
         artist1 = Artist.query.get(artist_id)
         venue1 = Venue.query.get(venue_id)
         
