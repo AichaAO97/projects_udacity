@@ -1,9 +1,14 @@
 ## I had to upgrade these packages in order to be able to run the app for the first time, after installing 
 the requirment:
+
 pip install --upgrade babel
+
 pip install --upgrade python-dateutil
+
 pip install --upgrade flask-moment
+
 pip install --upgrade flask-wtf
+
 pip install --upgrade flask_sqlalchemy
 ### ############################################################################################
 
